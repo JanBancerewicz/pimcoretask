@@ -66,19 +66,27 @@ Thumbs.db
 
 # === VENDOR / DEPENDENCJE ===
 /vendor/
+/var/installer/
 
 # === CACHE / RUNTIME / GENEROWANE ===
-/var/
+/var/cache
+/var/tmp/
+/var/log/
+/var/sessions/
 /dump/
+/var/admin
 
 # === PUBLICZNY KATALOG WWW ===
 /public/bundles/
-/public/var/
-/public/uploads/
-/public/media/
 /public/build/
 /public/js/*.map
 /public/css/*.map
+/public/var/
+
+# usunięte z racji tego ze to demo i lepiej miec assety w bazie
+#/public/uploads/
+#/public/media/
+
 
 # === DOCKER ===
 /docker-compose.override.yaml
@@ -112,3 +120,6 @@ Desktop.ini
 /config/pimcore/google-api-private-key.json
 .env
 
+# === EXCEPTIONS FOR DEMO STRUCTURE ===
+!var/classes/
+!var/classes/**
