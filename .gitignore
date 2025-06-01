@@ -50,3 +50,65 @@
 
 # Embedded web-server pid file
 /.web-server-pid
+
+
+
+# === SYSTEMOWE / IDE ===
+*.log
+*.DS_Store
+*.swp
+Thumbs.db
+.env.local
+.env.*
+!.env
+.idea/
+.vscode/
+
+# === VENDOR / DEPENDENCJE ===
+/vendor/
+
+# === CACHE / RUNTIME / GENEROWANE ===
+/var/
+/dump/
+
+# === PUBLICZNY KATALOG WWW ===
+/public/bundles/
+/public/var/
+/public/uploads/
+/public/media/
+/public/build/
+/public/js/*.map
+/public/css/*.map
+
+# === DOCKER ===
+/docker-compose.override.yaml
+/.docker/.env
+/.docker/dbdata/
+/.ddev/
+
+# === TESTY / PHPUNIT ===
+/phpunit.result.cache
+
+# === NODE / FRONTEND ===
+/node_modules/
+/yarn.lock
+/pnpm-lock.yaml
+/package-lock.json
+/dist/
+/build/
+
+# === BACKUPY / EXPORTY / TEMP ===
+*.bak
+*.tmp
+*.old
+*.orig
+
+# === SYSTEM WINDOWS ===
+ehthumbs.db
+Desktop.ini
+
+
+# secrets
+/config/pimcore/google-api-private-key.json
+.env
+
