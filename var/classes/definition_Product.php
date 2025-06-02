@@ -23,7 +23,7 @@ return \Pimcore\Model\DataObject\ClassDefinition::__set_state(array(
    'title' => '',
    'description' => '',
    'creationDate' => NULL,
-   'modificationDate' => 1748801512,
+   'modificationDate' => 1748824022,
    'userOwner' => 2,
    'userModification' => 2,
    'parentClass' => '',
@@ -86,8 +86,8 @@ return \Pimcore\Model\DataObject\ClassDefinition::__set_state(array(
             array (
             ),
              'defaultValue' => NULL,
-             'columnLength' => 50,
-             'regex' => '',
+             'columnLength' => 20,
+             'regex' => '^[A-Z0-9-]{5,20}$',
              'regexFlags' => 
             array (
             ),
@@ -116,7 +116,7 @@ return \Pimcore\Model\DataObject\ClassDefinition::__set_state(array(
             array (
             ),
              'defaultValue' => NULL,
-             'columnLength' => 255,
+             'columnLength' => 100,
              'regex' => '',
              'regexFlags' => 
             array (
@@ -172,11 +172,11 @@ return \Pimcore\Model\DataObject\ClassDefinition::__set_state(array(
             ),
              'defaultValue' => NULL,
              'integer' => false,
-             'unsigned' => false,
+             'unsigned' => true,
              'minValue' => NULL,
              'maxValue' => NULL,
              'unique' => false,
-             'decimalSize' => 12,
+             'decimalSize' => 10,
              'decimalPrecision' => 2,
              'width' => '',
              'defaultValueGenerator' => '',
@@ -358,10 +358,6 @@ return \Pimcore\Model\DataObject\ClassDefinition::__set_state(array(
             ),
              'classes' => 
             array (
-              0 => 
-              array (
-                'classes' => '',
-              ),
             ),
              'displayMode' => NULL,
              'pathFormatterClass' => '',
@@ -381,10 +377,6 @@ return \Pimcore\Model\DataObject\ClassDefinition::__set_state(array(
              'documentsAllowed' => false,
              'documentTypes' => 
             array (
-              0 => 
-              array (
-                'documentTypes' => '',
-              ),
             ),
              'enableTextSelection' => false,
              'width' => '',

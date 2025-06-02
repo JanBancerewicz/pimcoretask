@@ -16,7 +16,7 @@ return \Pimcore\Model\DataObject\ClassDefinition::__set_state(array(
    'title' => '',
    'description' => '',
    'creationDate' => NULL,
-   'modificationDate' => 1748800781,
+   'modificationDate' => 1748822131,
    'userOwner' => 2,
    'userModification' => 2,
    'parentClass' => '',
@@ -79,7 +79,7 @@ return \Pimcore\Model\DataObject\ClassDefinition::__set_state(array(
             array (
             ),
              'defaultValue' => NULL,
-             'columnLength' => 190,
+             'columnLength' => 80,
              'regex' => '',
              'regexFlags' => 
             array (
@@ -109,8 +109,8 @@ return \Pimcore\Model\DataObject\ClassDefinition::__set_state(array(
             array (
             ),
              'defaultValue' => NULL,
-             'columnLength' => 12,
-             'regex' => '',
+             'columnLength' => 10,
+             'regex' => '^\\d{10}$',
              'regexFlags' => 
             array (
             ),
