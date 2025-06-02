@@ -10,8 +10,8 @@ Kompletny system zarządzania produktami w Pimcore z funkcjami importu/eksportu 
    - Nazwa [input] (required) 
    - Opis [wysiwyg] (optional) Pole opisowe textarea
    - Cena [numeric] (required)
-    - Precyzja cz. ułamkowej: 2 miejsca po przecinku
-    - Precyzja cz. całk.: 10 miejsc przed przecinkiem
+      - Precyzja cz. ułamkowej: 2 miejsca po przecinku
+      - Precyzja cz. całk.: 10 miejsc przed przecinkiem
    - Status [select] - wartości: `Dostepny | Niedostepny | Wycofany`
    - Kategoria [manyToOneRelation] do klasy `CategoryItem`
    - Producent [manyToOneRelation] do klasy `ProducentInfo`
