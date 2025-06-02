@@ -29,7 +29,8 @@ class ImportCsvProductsCommand extends AbstractCommand
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
-    {
+{
+    try {
         $this->initializeFolders($output);
         
         $csvPath = PIMCORE_PROJECT_ROOT . '/var/data/import/products.csv';
@@ -38,8 +39,9 @@ class ImportCsvProductsCommand extends AbstractCommand
         }
 
         $data = $this->parseCsv($csvPath, $output);
-        if ($data === null) {
-            return self::FAILURE;
+        if (empty($data)) {
+            $output->writeln('<comment>Brak danych do importu w pliku CSV</comment>');
+            return self::SUCCESS;
         }
 
         // ETAP 1: Importuj wszystkie kategorie i producentów
@@ -49,70 +51,119 @@ class ImportCsvProductsCommand extends AbstractCommand
         foreach ($data as $item) {
             $categoryName = trim($item['Kategoria'] ?? '');
             if ($categoryName && !isset($categories[$categoryName])) {
-                $categories[$categoryName] = $this->getOrCreateCategory($categoryName, $output);
+                $category = $this->getOrCreateCategory($categoryName, $output);
+                if ($category) {
+                    $categories[$categoryName] = $category;
+                }
             }
 
             $producerName = trim($item['Producent'] ?? '');
             $producerNip = trim($item['NIP'] ?? '');
             if ($producerName && !isset($producers[$producerName])) {
-                $producers[$producerName] = $this->getOrCreateProducer($producerName, $producerNip, $output);
+                $producer = $this->getOrCreateProducer($producerName, $producerNip, $output);
+                if ($producer) {
+                    $producers[$producerName] = $producer;
+                }
             }
         }
 
         // ETAP 2: Importuj produkty
-        $results = ['imported' => 0, 'skipped' => 0];
+        $results = ['imported' => 0, 'skipped' => 0, 'failed' => 0];
         
         foreach ($data as $item) {
-            try {
-                $sku = trim($item['SKU'] ?? '');
-                if (empty($sku)) {
-                    continue;
-                }
+            $sku = trim($item['SKU'] ?? '');
+            if (empty($sku)) {
+                $output->writeln('<comment>Pominięto wiersz - brak SKU</comment>');
+                $results['failed']++;
+                continue;
+            }
 
+            try {
                 if ($this->productExists($sku)) {
                     $results['skipped']++;
+                    $output->writeln("<comment>Pominięto istniejący produkt: {$sku}</comment>");
                     continue;
                 }
-
-                $category = $categories[trim($item['Kategoria'])] ?? null;
-                $producer = $producers[trim($item['Producent'])] ?? null;
 
                 $product = new Product();
                 $product->setKey(Service::getValidKey($sku, 'object'));
                 $product->setParent(DataObject::getByPath(self::PRODUCTS_PATH));
-                $product->setPublished(true);
+                $product->setPublished(false); // Workflow będzie kontrolował publikację
+                $product->setClassName('Product');
                 
+                // Ustawianie podstawowych właściwości
                 $product->setSku($sku);
                 $product->setNazwa(trim($item['Nazwa'] ?? ''));
                 $product->setOpis(trim($item['Opis'] ?? ''));
                 $product->setCena((float)($item['Cena'] ?? 0));
-                $product->setStatus(trim($item['Status'] ?? ''));
+                $product->setStatus((int)($item['Status'] ?? 0));
 
-                if ($category) {
-                    $product->setKategoria($category);
-                }
-                if ($producer) {
-                    $product->setProducent($producer);
+                // Ustawianie relacji
+                $categoryName = trim($item['Kategoria'] ?? '');
+                if ($categoryName && isset($categories[$categoryName])) {
+                    $product->setKategoria($categories[$categoryName]);
                 }
 
+                $producerName = trim($item['Producent'] ?? '');
+                if ($producerName && isset($producers[$producerName])) {
+                    $product->setProducent($producers[$producerName]);
+                }
+
+                // Dodawanie obrazków
                 $this->addImagesToProduct($product, $item['Zdjecia'] ?? '', $output);
 
+                // Zapisz produkt przed rozpoczęciem workflow
                 $product->save();
+
+                // Rozpocznij workflow
+                try {
+                    $workflow = $this->workflowRegistry->get($product, 'product_lifecycle');
+                    if ($workflow->can($product, 'mark_for_review')) {
+                        $workflow->apply($product, 'mark_for_review');
+                        $product->save();
+                    }
+                } catch (\Exception $e) {
+                    $output->writeln("<error>Błąd workflow dla produktu {$sku}: " . $e->getMessage() . "</error>");
+                    // Kontynuuj mimo błędu workflow
+                }
+
                 $results['imported']++;
                 $output->writeln("<info>Zaimportowano produkt: {$sku}</info>");
 
             } catch (\Exception $e) {
+                $results['failed']++;
                 $output->writeln("<error>Błąd importu produktu {$sku}: " . $e->getMessage() . "</error>");
+                
+                // Debugowanie - pokaż ślad stosu tylko w trybie verbose
+                if ($output->isVerbose()) {
+                    $output->writeln("<error>Trace: " . $e->getTraceAsString() . "</error>");
+                }
             }
         }
 
+        // Podsumowanie
         $output->writeln([
-            "<comment>Pominięto {$results['skipped']} istniejących produktów</comment>",
-            "<info>Zaimportowano {$results['imported']} nowych produktów</info>"
+            '',
+            '<comment>Podsumowanie importu:</comment>',
+            "<info>Zaimportowano: {$results['imported']}</info>",
+            "<comment>Pominięto istniejące: {$results['skipped']}</comment>",
+            ($results['failed'] > 0 ? "<error>" : "<comment>") . 
+            "Niepowodzenia: {$results['failed']}" . 
+            ($results['failed'] > 0 ? "</error>" : "</comment>"),
+            ''
         ]);
 
-        return self::SUCCESS;
+        return $results['failed'] > 0 ? self::FAILURE : self::SUCCESS;
+
+    } catch (\Throwable $e) {
+        $output->writeln([
+            '<error>Krytyczny błąd podczas importu:</error>',
+            "<error>" . $e->getMessage() . "</error>",
+            $output->isVerbose() ? "<error>" . $e->getTraceAsString() . "</error>" : ''
+        ]);
+        return self::FAILURE;
     }
+}
 
     private function initializeFolders(OutputInterface $output): void
     {
