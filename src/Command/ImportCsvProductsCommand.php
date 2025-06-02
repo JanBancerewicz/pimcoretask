@@ -112,6 +112,9 @@ class ImportCsvProductsCommand extends AbstractCommand
                 // Dodawanie obrazków
                 $this->addImagesToProduct($product, $item['Zdjecia'] ?? '', $output);
 
+                // Dodawanie dokumentów
+                $this->addDocumentToProduct($product, $item['Dokumentacja'] ?? '', $output);
+
                 // Zapisz produkt przed rozpoczęciem workflow
                 $product->save();
 
@@ -458,4 +461,31 @@ class ImportCsvProductsCommand extends AbstractCommand
             $product->setZdjecia(new ImageGallery($galleryItems));
         }
     }
+
+
+    private function addDocumentToProduct(Product $product, string $documentName, OutputInterface $output): void
+    {
+        $documentName = trim($documentName);
+        if (empty($documentName)) {
+            return;
+        }
+        
+        $assetPath = self::ASSETS_PATH . '/' . $documentName;
+        $asset = Asset::getByPath($assetPath);
+        
+        if ($asset instanceof Asset\Document) {
+            // Tworzymy metadata dla AdvancedManyToManyRelation
+            $metadata = new DataObject\Data\ElementMetadata();
+            $metadata->setElement($asset);
+            
+            // Pobieramy istniejące dokumenty i dodajemy nowy
+            $existingDocs = $product->getDokumentacja() ?: [];
+            $existingDocs[] = $metadata;
+            
+            $product->setDokumentacja($existingDocs);
+        } else {
+            $output->writeln("<comment>Nie znaleziono dokumentu: {$assetPath}</comment>");
+        }
+    }
+
 }
