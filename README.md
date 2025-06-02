@@ -49,7 +49,7 @@ composer install
 ```bash
 DATABASE_URL="mysql://user:password@localhost:3306/pimcore"
 ```
-Pamiętaj o zmianie wartości `user` oraz `password` na własne wartości.
+Pamiętaj o zmianie wartości `user` oraz `password` na własne wartości. Zmień nazwę pliku z `env.local` na `.env`
 
 
 3. **Odpal skrypt instalacyjny pimcore** (pozwoli on na utworzenie konta admina, ustawienie hasła oraz instalację całego projektu):
