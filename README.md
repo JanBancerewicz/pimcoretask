@@ -18,11 +18,11 @@ Kompletny system zarządzania produktami w Pimcore z funkcjami importu/eksportu 
    - Zdjecia [imageGallery] (max 10 zdjęć)
    - Dokumentacja [advancedManyToManyRelation] (dowolna liczba plików)
 
-**CategoryItem** - Tabela przechoująca kategorie:
+3. **CategoryItem** - Tabela przechoująca kategorie:
     - Nazwa (required, unique) 
     - Opis
 
-**ProducentInfo** - Tabela przechoująca kategorie:
+4. **ProducentInfo** - Tabela przechoująca kategorie:
     - Nazwa (required) 
     - NIP [input] - (optional) RegEx: `[10 cyfr]`
 
