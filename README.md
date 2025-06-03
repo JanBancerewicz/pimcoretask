@@ -34,30 +34,52 @@ Kompletny system zarządzania produktami w Pimcore z funkcjami importu/eksportu 
 - MySQL 5.7+
 - Composer 2.0+
 - Symfony 6.4+
-- Pimcore version 2024.4
+- Pimcore version 2024.4+
 
-### Kroki instalacyjne
+### Instalacja
 
-1. **Sklonuj repozytorium:**
+
+1. **Utwórz nowy projekt Pimcore**
+(Zalecane jest ustawienie limitu pamięci przed rozpoczęciem instalacji:)
 ```bash
-git clone https://github.com/JanBancerewicz/pimcoretask.git
-cd pimcoretask
-composer install
+set COMPOSER_MEMORY_LIMIT=-1
+composer create-project --no-scripts pimcore/demo pimcoretask
 ```
 
-2. **Skonfiguruj połączenie z bazą danych w pliku .env** (definiując dane logowania dla użytkownika mysql):
+2. Sklonuj repozytorium z kodem projektu i skopiuj najważniejsze pliki
+```bash
+git clone https://github.com/JanBancerewicz/pimcoretask.git temp-task
+```
+Skopiuj do projektu Pimcore następujące katalogi z temp-task:
+```ngnix
+pimcoretask
+├── /assets
+├── /config
+├── /src
+└── /var
+```
+
+3. **Zainstaluj zależności**
+```bash
+composer install
+php bin/console assets:install --symlink --relative
+```
+
+4. **Skonfiguruj połączenie z bazą danych w pliku .env**
+Edytuj plik .env i ustaw dane dostępowe do swojej bazy MySQL:
 ```bash
 DATABASE_URL="mysql://user:password@localhost:3306/pimcore"
 ```
-Pamiętaj o zmianie wartości `user` oraz `password` na własne wartości. Zmień nazwę pliku z `env.local` na `.env`
+Zamień user i password na swoje dane. Upewnij się, że plik ma nazwę .env, a nie env.local.
 
-
-3. **Odpal skrypt instalacyjny pimcore** (pozwoli on na utworzenie konta admina, ustawienie hasła oraz instalację całego projektu):
+5. **Zainstaluj Pimcore (inicjalizacja bazy i konta admina)**
 ```bash
-php bin/console pimcore:install
+php vendor/bin/pimcore-install
 ```
+Podczas instalacji zostaniesz poproszony o utworzenie konta administratora.
 
-4. Następnie uruchom serwer za pomocą komendy:
+
+6. **Następnie uruchom serwer za pomocą komendy:**
 ```bash
 symfony serve
 ```
